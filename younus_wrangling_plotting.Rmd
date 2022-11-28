@@ -1,0 +1,67 @@
+---
+title: "younus_wrangling_plotting.Rmd"
+author: "Saleem Younus"
+date: "9/20"
+output:
+  html_document:
+    theme: dark
+    toc: true
+    toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+ 
+```{r, warning = FALSE, message = FALSE}
+library(tidyverse)  
+library(dplyr)
+```
+
+## Exercise 1; Texan Housing Sales from 2004 - 2009 
+```{r, warning = FALSE, message = FALSE}
+top3housing <- txhousing %>%
+  filter(year > 2003 & year < 2010 & (city == "Houston" | city == "San Antonio" | city =="Austin")) %>%
+  group_by(year, city) %>%
+  summarize(avg_sale_price = mean(volume/sales, na.rm=TRUE)) %>%
+  select(city, avg_sale_price, year)
+  
+
+(top3housing)
+
+ggplot(data = top3housing, mapping = aes(x = city, y = avg_sale_price, fill = factor(year))) + 
+  geom_col(position = "dodge") 
+
+
+```
+
+## Exercise 2: Multi Linegraph Top housing Sales
+
+```{r, warning = FALSE, message = FALSE}
+top4housing <- txhousing %>%
+  filter(year > 2001 & year < 2012 & (city == "Houston" | city == "San Antonio" | city =="Austin")) %>%
+  group_by(year, city) %>%
+  summarize(saless = sum(sales, na.rm=TRUE)) %>%
+  select(city, saless, year)
+
+top4housing
+
+ggplot(data = top4housing, mapping = aes(x = year, y = saless, color = city)) + 
+  geom_line() 
+```
+ The difference between fill and color functions is that color outlines the graph with the given color where fill fills in the plot with the color.
+
+## Exercise 3/4: Scatter Plot/ Facet Wrapped
+```{r, warning = FALSE, message = FALSE}
+
+#mpg
+new_mpg = mpg %>%
+  filter((drv == "f" | drv == 4) & (cyl == 4 | cyl == 6) & !(class == "SUV"))%>%
+  mutate(avg = (hwy + cty)/2)
+
+
+ggplot(data = new_mpg, mapping = aes(x = displ, y = avg)) + 
+  geom_point() +
+  facet_wrap(~ drv)
+ 
+```

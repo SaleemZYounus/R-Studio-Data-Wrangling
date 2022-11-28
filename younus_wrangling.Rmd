@@ -1,0 +1,103 @@
+---
+title: "younus_wrangling.Rmd"
+author: "Saleem Younus"
+date: "9/20/22"
+output: 
+  html_document: 
+    theme: dark
+    
+---
+
+```{r, warning = FALSE, message = FALSE}
+library(tidyverse)  
+library(dplyr)
+```
+
+## Exercise 1:  Apply DeMorgan’s Law using !
+
+```{r}
+txhousing_demorgan <- txhousing %>% 
+  filter( (year==2013 | year==2014) )
+txhousing_demorgan 
+```
+
+## Exercise 2: Distributive Law 
+
+```{r}
+txhousing_distributive <- txhousing %>% 
+  filter( (sales>=3000 | ( listings>4000 & median>=150000 )))
+
+(txhousing_distributive)
+
+```
+
+## Exercise 3: Percentile Values
+```{r}
+quantile(txhousing$median, c(.05, .95), na.rm = TRUE)
+
+
+```
+
+## Exercise 4: Extreme housing prices 2012 - 2014
+```{r}
+txhousing_price_extremes = txhousing %>%
+  filter((median<77525 | median>196700), year >= 2012, year <= 2014)
+txhousing_price_extremes =subset (txhousing_price_extremes, select = -inventory)
+txhousing_price_extremes
+```
+Exercise 5: How many houses are sold at what average price?
+```{r}
+txhousing_augmented <- 
+  mutate(
+    txhousing,
+    percent_sold = (sales) / (listings)*100,
+    average_price = (volume) / (sales))
+
+glimpse(txhousing_augmented)
+```
+
+## Exercise 6: Total and Average Sales Price by Year
+```{r, warning = FALSE, message = FALSE}
+sales_by_year = txhousing %>% 
+  group_by(year) %>% 
+  summarize(avg_sale_price = mean(volume, na.rm=TRUE),
+            total_sales = sum(sales, na.rm=TRUE))
+
+sales_by_year
+```
+
+## Exercise 7: Number and Value of sales in 2014
+```{r}
+basic_housing = txhousing %>% 
+  mutate(txhousing, average_price = volume/sales) %>%
+  filter(year == 2014, city == "Dallas") %>% 
+  select(city, year, month, sales, volume, average_price) %>%
+  arrange(desc(average_price))
+(basic_housing)
+```
+## Exercise 8: Total Sales in the Top 4 Texas Cities in 2012
+```{r}
+tophousing <- txhousing %>%
+  filter(year == 2010 & city == "Houston" | city == "San Antonio" | city =="Austin" | city == "Dallas") %>%
+  group_by(city) %>%
+  summarize(total_sales = sum(sales, na.rm = TRUE))
+
+(tophousing)
+```
+
+## Exercise 9: Merging previous table with Population 
+```{r}
+texas_populations <- tibble(
+  city = c("Houston" , "San Antonio" , "Austin" , "Dallas"), 
+  population = c(2100263 , 1327407 , 1197816 , 790390)
+)
+
+texas_big_cities <- tophousing %>% 
+  inner_join(texas_populations, by = "city")
+texas_big_cities
+
+
+
+
+```
+
